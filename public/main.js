@@ -8,7 +8,7 @@ const car = new Car(track.getLaneCenter(1), 100, 30, 50);
 motion();
 
 function motion() {
-  car.update();
+  car.update(track.borders);
 
   canvas.height = window.innerHeight;
 

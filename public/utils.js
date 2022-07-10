@@ -21,3 +21,20 @@ function getIntersection(A, B, C, D) {
 
   return null;
 }
+
+function polygonsIntersection(pol1, pol2) {
+  for (let i = 0; i < pol1.length; i++) {
+    for (let j = 0; j < pol2.length; j++) {
+      const touch = getIntersection(
+        pol1[i],
+        pol1[(i + 1) % pol1.length],
+        pol2[j],
+        pol2[(j + 1) % pol2.length]
+      );
+      if (touch) {
+        return true;
+      }
+    }
+  }
+  return false;
+}

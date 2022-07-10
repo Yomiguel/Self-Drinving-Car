@@ -1,5 +1,5 @@
 class Car {
-  constructor(x, y, width, height) {
+  constructor(x, y, width, height, controlType, maxSpeed = 3) {
     this.x = x;
     this.y = y;
     this.width = width;
@@ -7,27 +7,36 @@ class Car {
 
     this.speed = 0;
     this.aceleration = 0.2;
-    this.maxSpeed = 3;
+    this.maxSpeed = maxSpeed;
     this.friction = 0.02;
     this.angle = 0;
     this.crashed = false;
 
-    this.sensors = new Sensors(this);
-    this.controls = new Controls();
+    if (controlType != "DUMMY") {
+      this.sensor = new Sensors(this);
+    }
+    this.controls = new Controls(controlType);
   }
 
-  update(trackBorders) {
+  update(trackBorders, flow) {
     if (!this.crashed) {
       this.#move();
       this.polygon = this.#createPolygon();
-      this.crashed = this.#assesDamage(trackBorders);
+      this.crashed = this.#assesDamage(trackBorders, flow);
     }
-    this.sensors.update(trackBorders);
+    if (this.sensor) {
+      this.sensor.update(trackBorders, flow);
+    }
   }
 
-  #assesDamage(trackBorders) {
+  #assesDamage(trackBorders, flow) {
     for (let i = 0; i < trackBorders.length; i++) {
       if (polygonsIntersection(this.polygon, trackBorders[i])) {
+        return true;
+      }
+    }
+    for (let i = 0; i < flow.length; i++) {
+      if (polygonsIntersection(this.polygon, flow[i].polygon)) {
         return true;
       }
     }
@@ -97,11 +106,11 @@ class Car {
     this.y = this.y - Math.cos(this.angle) * this.speed;
   }
 
-  draw(context) {
+  draw(context, color) {
     if (this.crashed) {
       context.fillStyle = "red";
     } else {
-      context.fillStyle = "black";
+      context.fillStyle = color;
     }
     context.beginPath();
     context.moveTo(this.polygon[0].x, this.polygon[0].y);
@@ -110,6 +119,8 @@ class Car {
     }
     context.fill();
 
-    this.sensors.draw(context);
+    if (this.sensor) {
+      this.sensor.draw(context);
+    }
   }
 }

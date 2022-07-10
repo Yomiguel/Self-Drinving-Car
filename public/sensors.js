@@ -9,15 +9,15 @@ class Sensors {
     this.readings = [];
   }
 
-  update(trackBorders) {
+  update(trackBorders, flow) {
     this.#castRays();
     this.readings = [];
     for (let i = 0; i < this.rays.length; i++) {
-      this.readings.push(this.#getReading(this.rays[i], trackBorders));
+      this.readings.push(this.#getReading(this.rays[i], trackBorders, flow));
     }
   }
 
-  #getReading(ray, trackBorders) {
+  #getReading(ray, trackBorders, flow) {
     let touches = [];
 
     for (let i = 0; i < trackBorders.length; i++) {
@@ -29,6 +29,21 @@ class Sensors {
       );
       if (touch) {
         touches.push(touch);
+      }
+    }
+
+    for (let i = 0; i < flow.length; i++) {
+      const pol = flow[i].polygon;
+      for (let j = 0; j < pol.length; j++) {
+        const value = getIntersection(
+          ray[0],
+          ray[1],
+          pol[j],
+          pol[(j + 1) % pol.length]
+        );
+        if (value) {
+          touches.push(value);
+        }
       }
     }
 
